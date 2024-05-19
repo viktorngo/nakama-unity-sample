@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Nakama;
@@ -13,7 +14,7 @@ namespace Server
 
         private static ISession CurrentSession { get; set; }
 
-        private static ISocket CurrentSocket { get; set; }
+        public static ISocket CurrentSocket { get; set; }
         
         private static IApiAccount AccountInfo { get; set; }
         
@@ -22,8 +23,8 @@ namespace Server
         static NakamaConnection()
         {
             const string schema = "http";
-            // const string host = "localhost";
-            const string host = "44.204.24.106";
+            const string host = "localhost";
+            // const string host = "44.204.24.106";
             const int port = 7350;
             const string serverKey = "JKoZIhvcNAQEBBQADSgAwRwJAZTVQ9W82HLIC";
             Client = new Client(schema, host, port, serverKey);
@@ -62,6 +63,7 @@ namespace Server
             CurrentSession = await Client.AuthenticateGoogleAsync(tokenString, username);
             await CurrentSocket.ConnectAsync(CurrentSession, true);
             AccountInfo = await GetAccount();
+            Debug.Log("logged in with google: " + AccountInfo);
         }
 
         public static async Task AuthenticateWithApple(string tokenString, string username = null)
@@ -83,7 +85,7 @@ namespace Server
 
         public static async Task<IApiAccount> GetAccount()
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -93,7 +95,7 @@ namespace Server
 
         public static async Task UpdateAccount()
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -113,7 +115,7 @@ namespace Server
         
         public static async Task DeleteAccount()
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -123,7 +125,7 @@ namespace Server
 
         public static async Task<Storage> GetSystemItems()
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -146,7 +148,7 @@ namespace Server
 
         public static async Task<Storage> GetStorage()
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -170,7 +172,7 @@ namespace Server
 
         public static async Task WriteStorage(Storage storage)
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -189,7 +191,7 @@ namespace Server
 
         public static async Task<Config> GetConfig()
         {
-            if (IsAlive())
+            if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
@@ -211,28 +213,33 @@ namespace Server
         }
 
         // first time load notifications from server (when user login)
-        public static async Task<IApiNotificationList> LoadNotifications()
+        public static async Task<List<IApiNotification>> LoadNotifications()
         {
-            return await Client.ListNotificationsAsync(CurrentSession, 10);
+            var result = await Client.ListNotificationsAsync(CurrentSession, 10, null);
+            NoticeCacheableCursor = result.CacheableCursor;
+            return result.Notifications.ToList();
         }
         
         // load more notifications from server each time user scroll to the end of the list
-        public static async Task<IApiNotificationList> LoadMoreNotifications()
+        public static async Task<List<IApiNotification>> LoadMoreNotifications()
         {
             if (!string.IsNullOrEmpty(NoticeCacheableCursor))
             {
-                return await Client.ListNotificationsAsync(CurrentSession, 10, NoticeCacheableCursor);
+                var result = await Client.ListNotificationsAsync(CurrentSession, 10, NoticeCacheableCursor);
+                NoticeCacheableCursor = result.CacheableCursor;
+                return result.Notifications.ToList();
             }
 
             return null;
         }
         
-        public static async Task ReceiveNotification()
+        // when user is online, use this callback to receive notification when server push
+        public static void ReceiveNotification()
         {
             CurrentSocket.ReceivedNotification += notification =>
             {
-                Console.WriteLine("Received: {0}", notification);
-                Console.WriteLine("Notification content: '{0}'", notification.Content);
+                Debug.Log("Received: " + notification);
+                Debug.Log("Notification content: " + notification.Content);
             };
         }
         
