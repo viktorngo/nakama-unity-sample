@@ -22,3 +22,23 @@ public class Clothe
 
         
 }
+
+public class NoticeStorage
+{
+    public List<Notice> notices { get; set; }
+}
+public class Notice
+{
+    public string id { get; set; }
+    public bool is_active { get; set; }
+    public string start_date { get; set; }
+    public string end_date { get; set; }
+    public List<NoticeBody> bodies { get; set; }
+}
+
+public class NoticeBody
+{
+    public string content { get; set; }
+    public string subject { get; set; }
+    public string language { get; set; }
+}

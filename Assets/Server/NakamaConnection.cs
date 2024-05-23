@@ -212,17 +212,27 @@ namespace Server
             return config;
         }
 
-        // first time load notifications from server (when user login)
-        public static async Task<List<IApiNotification>> LoadNotifications()
+        // first time load mailbox from server (when user login)
+        public static async Task<List<IApiNotification>> LoadMailbox()
         {
+            if (!IsAlive())
+            {
+                throw new Exception("Socket is not connected");
+            }
+            
             var result = await Client.ListNotificationsAsync(CurrentSession, 10, null);
             NoticeCacheableCursor = result.CacheableCursor;
             return result.Notifications.ToList();
         }
         
-        // load more notifications from server each time user scroll to the end of the list
-        public static async Task<List<IApiNotification>> LoadMoreNotifications()
+        // load more mailbox from server each time user scroll to the end of the list
+        public static async Task<List<IApiNotification>> LoadMoreMailboxs()
         {
+            if (!IsAlive())
+            {
+                throw new Exception("Socket is not connected");
+            }
+            
             if (!string.IsNullOrEmpty(NoticeCacheableCursor))
             {
                 var result = await Client.ListNotificationsAsync(CurrentSession, 10, NoticeCacheableCursor);
@@ -234,7 +244,7 @@ namespace Server
         }
         
         // when user is online, use this callback to receive notification when server push
-        public static void ReceiveNotification()
+        public static void ReceiveMailbox()
         {
             CurrentSocket.ReceivedNotification += notification =>
             {
@@ -244,9 +254,40 @@ namespace Server
         }
         
         // pass a list of notification ids to delete
-        public static async Task DeleteNotifications(string[] notificationIds)
+        public static async Task DeleteMailboxs(string[] notificationIds)
         {
+            if (!IsAlive())
+            {
+                throw new Exception("Socket is not connected");
+            }
+            
             await Client.DeleteNotificationsAsync(CurrentSession, notificationIds);
+        }
+        
+        public static async Task<List<Notice>> GetNotices()
+        {
+            if (!IsAlive())
+            {
+                throw new Exception("Socket is not connected");
+            }
+            
+            var readObjectId = new StorageObjectId
+            {
+                Collection = "Global",
+                Key = "Notice"
+            };
+
+            var result =
+                await Client.ReadStorageObjectsAsync(CurrentSession, new IApiReadStorageObjectId[] { readObjectId });
+            
+            
+            if (!result.Objects.Any()) return new List<Notice>();
+
+            var storageObject = result.Objects.First();
+            Debug.Log("value: " + storageObject.Value.ToJson());
+
+            var storage = storageObject.Value.FromJson<NoticeStorage>();
+            return storage.notices;
         }
         
     }
