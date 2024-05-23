@@ -12,7 +12,7 @@ public class NotificationManager : MonoBehaviour
         var notices = await NakamaConnection.GetNotices();
         Debug.Log("notices: " + notices.ToJson());
         
-        // load all notifications
+        // load all mailboxs
         var notifications = await NakamaConnection.LoadMailbox();
         if (notifications != null)
         {
