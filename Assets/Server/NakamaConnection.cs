@@ -15,10 +15,12 @@ namespace Server
         private static ISession CurrentSession { get; set; }
 
         public static ISocket CurrentSocket { get; set; }
-        
+
         private static IApiAccount AccountInfo { get; set; }
-        
+
         private static string NoticeCacheableCursor { get; set; }
+
+        private static string leaderboardsCursor { get; set; }
 
         static NakamaConnection()
         {
@@ -89,7 +91,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             return await Client.GetAccountAsync(CurrentSession);
         }
 
@@ -99,7 +101,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             // sample data
             var newUsername = "NotTheImp0ster";
             var newDisplayName = "Innocent Dave";
@@ -107,19 +109,19 @@ namespace Server
             var newLangTag = "en";
             var newLocation = "Edinburgh";
             var newTimezone = "BST";
-            
+
             await Client.UpdateAccountAsync(CurrentSession, newUsername, newDisplayName, newAvatarUrl, newLangTag,
                 newLocation,
                 newTimezone);
         }
-        
+
         public static async Task DeleteAccount()
         {
             if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             await Client.DeleteAccountAsync(CurrentSession);
         }
 
@@ -129,7 +131,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             var readObjectId = new StorageObjectId
             {
                 Collection = "SystemItems",
@@ -152,7 +154,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             var readObjectId = new StorageObjectId
             {
                 Collection = "Items",
@@ -176,7 +178,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             var writeObject = new WriteStorageObject
             {
                 Collection = "Items",
@@ -195,7 +197,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             var readObjectId = new StorageObjectId
             {
                 Collection = "SystemItems",
@@ -219,12 +221,12 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             var result = await Client.ListNotificationsAsync(CurrentSession, 10, null);
             NoticeCacheableCursor = result.CacheableCursor;
             return result.Notifications.ToList();
         }
-        
+
         // load more mailbox from server each time user scroll to the end of the list
         public static async Task<List<IApiNotification>> LoadMoreMailboxs()
         {
@@ -232,7 +234,7 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             if (!string.IsNullOrEmpty(NoticeCacheableCursor))
             {
                 var result = await Client.ListNotificationsAsync(CurrentSession, 10, NoticeCacheableCursor);
@@ -242,7 +244,7 @@ namespace Server
 
             return null;
         }
-        
+
         // when user is online, use this callback to receive notification when server push
         public static void ReceiveMailbox()
         {
@@ -252,7 +254,7 @@ namespace Server
                 Debug.Log("Notification content: " + notification.Content);
             };
         }
-        
+
         // pass a list of notification ids to delete
         public static async Task DeleteMailboxs(string[] notificationIds)
         {
@@ -260,17 +262,17 @@ namespace Server
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             await Client.DeleteNotificationsAsync(CurrentSession, notificationIds);
         }
-        
+
         public static async Task<List<Notice>> GetNotices()
         {
             if (!IsAlive())
             {
                 throw new Exception("Socket is not connected");
             }
-            
+
             var readObjectId = new StorageObjectId
             {
                 Collection = "Global",
@@ -279,8 +281,8 @@ namespace Server
 
             var result =
                 await Client.ReadStorageObjectsAsync(CurrentSession, new IApiReadStorageObjectId[] { readObjectId });
-            
-            
+
+
             if (!result.Objects.Any()) return new List<Notice>();
 
             var storageObject = result.Objects.First();
@@ -289,6 +291,19 @@ namespace Server
             var storage = storageObject.Value.FromJson<NoticeStorage>();
             return storage.notices;
         }
-        
+
+        public static async Task<IApiLeaderboardRecord> AddRankingScore(int score)
+        {
+            return await Client.WriteLeaderboardRecordAsync(CurrentSession, "global_ranking", score);
+        }
+
+        public static async Task<IApiLeaderboardRecordList> ShowGlobalRanking()
+        {
+            // Fetch all records from the leaderboard "global"
+            var result = await Client.ListLeaderboardRecordsAsync(CurrentSession, "global_ranking", ownerIds: null,
+                expiry: null, 20, leaderboardsCursor);
+            leaderboardsCursor = result.NextCursor;
+            return result;
+        }
     }
 }

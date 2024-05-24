@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    public string idToken;
     private IApiAccount NakamaAccount { get; set; }
     private Storage Storage { get; set; }
 
@@ -20,14 +22,14 @@ public class Player : MonoBehaviour
 
     async void Start()
     {
-        // await NakamaConnection.AuthenticateWithGoogle(
-        //     "eyJhbGciOiJSUzI1NiIsImtpZCI6IjMyM2IyMTRhZTY5NzVhMGYwMzRlYTc3MzU0ZGMwYzI1ZDAzNjQyZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzMTc1Njc2ODQwOC1tOGU2dHQzNTB0aW50dmxpZjhhcW9mNnZkZGxwMDlibC5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImF1ZCI6IjMxNzU2NzY4NDA4LW04ZTZ0dDM1MHRpbnR2bGlmOGFxb2Y2dmRkbHAwOWJsLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwic3ViIjoiMTA5MjQyMjc5OTA3NDY5MzMzNTg5IiwiZW1haWwiOiJ2aWt0b3JuZ28ub25saW5lQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiMUc3WDFCWks3YVBNRG5Fa1NLVzlkZyIsImlhdCI6MTcxNjA4MDgwNiwiZXhwIjoxNzE2MDg0NDA2fQ.jqOA4nw5AXPtk1MsOVeeInRVZClm9BE6lpEtAla7scqPw_Elui-xdNfp6WO1qHyAeY_PV1dcwh4xz9xoKJyHSjMkXjYLCWbTZIAuBapToPnNZwdmdowMOTEj2cx_1dzi_hwZB5-JrcxUMYWW_bB_avnzustDUd_1pFcbYmqQ54E3xYf3paVc6C01nJwoh1eXi1s-FMaw19FLPMP-9Xu4QXfOccQmGCT7zCxCaJCxEP8VlrP5BYEJS_cFhLkYrylmGjgqRzPlIbmYKuo0WaDacVOQEH7p9DiEfKb2SyxjkItU_UnzWQNUK49V2NVs0hZ4thfSfAMz-W-NS9fW-ShbAw");
-        //
-        // // load storage of user
+        await NakamaConnection.AuthenticateWithGoogle(
+            idToken);
+        
+        // load storage of user
         // Storage = await NakamaConnection.GetStorage();
-        //
-        // // update storage
-        // // add some clothes to the storage
+        
+        // update storage
+        // add some clothes to the storage
         // Storage.Clothes.Add(new Clothe("Red Hat", "Hat", "A red hat", false));
         // Storage.Clothes.Add(new Clothe("Red Shirt", "Shirt", "A red shirt", false));
         //
@@ -39,6 +41,18 @@ public class Player : MonoBehaviour
         //
         //
         // Debug.Log("updated clothes: " + Storage.Clothes.ToJson());
+        
+        
+        // test add ranking score
+        // var rank = await NakamaConnection.AddRankingScore(100);
+        // Debug.Log("rank: " + rank.ToJson());
+
+        var leaderboardRecords = await NakamaConnection.ShowGlobalRanking();
+        Debug.Log("Ranking Records: " + leaderboardRecords.Records.Count());
+        foreach (var record in leaderboardRecords.Records)
+        {
+            Debug.Log("record: " + record.ToJson());
+        }
         
     }
 
