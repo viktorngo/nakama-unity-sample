@@ -47,12 +47,20 @@ public class Player : MonoBehaviour
         // var rank = await NakamaConnection.AddRankingScore(100);
         // Debug.Log("rank: " + rank.ToJson());
 
-        var leaderboardRecords = await NakamaConnection.ShowGlobalRanking();
-        Debug.Log("Ranking Records: " + leaderboardRecords.Records.Count());
-        foreach (var record in leaderboardRecords.Records)
+        // var leaderboardRecords = await NakamaConnection.GetGlobalRanks();
+        // Debug.Log("Ranking Records: " + leaderboardRecords.Records.Count());
+        // foreach (var record in leaderboardRecords.Records)
+        // {
+        //     Debug.Log("record: " + record.ToJson());
+        // }
+        
+        var myLeaderboardRecords = await NakamaConnection.GetMyRank();
+        Debug.Log("My Ranking Records: " + myLeaderboardRecords.Records.Count());
+        foreach (var record in myLeaderboardRecords.Records)
         {
             Debug.Log("record: " + record.ToJson());
         }
+        
         
     }
 

@@ -297,13 +297,18 @@ namespace Server
             return await Client.WriteLeaderboardRecordAsync(CurrentSession, "global_ranking", score);
         }
 
-        public static async Task<IApiLeaderboardRecordList> ShowGlobalRanking()
+        public static async Task<IApiLeaderboardRecordList> GetGlobalRanks()
         {
             // Fetch all records from the leaderboard "global"
             var result = await Client.ListLeaderboardRecordsAsync(CurrentSession, "global_ranking", ownerIds: null,
                 expiry: null, 20, leaderboardsCursor);
             leaderboardsCursor = result.NextCursor;
             return result;
+        }
+        
+        public static async Task<IApiLeaderboardRecordList> GetMyRank()
+        {
+            return await Client.ListLeaderboardRecordsAroundOwnerAsync(CurrentSession, "global_ranking", AccountInfo.User.Id);
         }
     }
 }
