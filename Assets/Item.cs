@@ -42,3 +42,24 @@ public class NoticeBody
     public string subject { get; set; }
     public string language { get; set; }
 }
+
+public class MailBox
+{
+    public List<MailBoxBody> bodies { get; set; }
+    public List<MailBoxItem> items { get; set; }
+}
+
+public class MailBoxBody
+{
+    public string content { get; set; }
+    public string subject { get; set; }
+    public string language { get; set; }
+    
+}
+
+public class MailBoxItem
+{
+    public string id { get; set; }
+    public string name { get; set; }
+    public int quantity { get; set; }
+}

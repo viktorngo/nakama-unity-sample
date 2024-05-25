@@ -215,7 +215,7 @@ namespace Server
         }
 
         // first time load mailbox from server (when user login)
-        public static async Task<List<IApiNotification>> LoadMailbox()
+        public static async Task<List<MailBox>> LoadMailbox()
         {
             if (!IsAlive())
             {
@@ -224,11 +224,22 @@ namespace Server
 
             var result = await Client.ListNotificationsAsync(CurrentSession, 10, null);
             NoticeCacheableCursor = result.CacheableCursor;
-            return result.Notifications.ToList();
+
+            if (!result.Notifications.Any()) return new List<MailBox>();
+
+            var mailBoxes = new List<MailBox>();
+            foreach (var item in result.Notifications)
+            {
+                var mailBox = item.Content.FromJson<MailBox>();
+                mailBoxes.Add(mailBox);
+            }
+
+
+            return mailBoxes;
         }
 
         // load more mailbox from server each time user scroll to the end of the list
-        public static async Task<List<IApiNotification>> LoadMoreMailboxs()
+        public static async Task<List<MailBox>> LoadMoreMailboxs()
         {
             if (!IsAlive())
             {
@@ -239,7 +250,18 @@ namespace Server
             {
                 var result = await Client.ListNotificationsAsync(CurrentSession, 10, NoticeCacheableCursor);
                 NoticeCacheableCursor = result.CacheableCursor;
-                return result.Notifications.ToList();
+
+                if (!result.Notifications.Any()) return new List<MailBox>();
+
+                var mailBoxes = new List<MailBox>();
+                foreach (var item in result.Notifications)
+                {
+                    var mailBox = item.Content.FromJson<MailBox>();
+                    mailBoxes.Add(mailBox);
+                }
+
+
+                return mailBoxes;
             }
 
             return null;
@@ -250,8 +272,11 @@ namespace Server
         {
             CurrentSocket.ReceivedNotification += notification =>
             {
+                var mailBox = notification.Content.FromJson<MailBox>();
+
+
                 Debug.Log("Received: " + notification);
-                Debug.Log("Notification content: " + notification.Content);
+                Debug.Log("Mailbox content: " + mailBox);
             };
         }
 
@@ -305,10 +330,11 @@ namespace Server
             leaderboardsCursor = result.NextCursor;
             return result;
         }
-        
+
         public static async Task<IApiLeaderboardRecordList> GetMyRank()
         {
-            return await Client.ListLeaderboardRecordsAroundOwnerAsync(CurrentSession, "global_ranking", AccountInfo.User.Id);
+            return await Client.ListLeaderboardRecordsAroundOwnerAsync(CurrentSession, "global_ranking",
+                AccountInfo.User.Id);
         }
     }
 }

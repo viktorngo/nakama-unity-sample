@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Nakama;
 using Nakama.TinyJson;
 using Server;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -24,10 +19,10 @@ public class Player : MonoBehaviour
     {
         await NakamaConnection.AuthenticateWithGoogle(
             idToken);
-        
+
         // load storage of user
         // Storage = await NakamaConnection.GetStorage();
-        
+
         // update storage
         // add some clothes to the storage
         // Storage.Clothes.Add(new Clothe("Red Hat", "Hat", "A red hat", false));
@@ -41,8 +36,8 @@ public class Player : MonoBehaviour
         //
         //
         // Debug.Log("updated clothes: " + Storage.Clothes.ToJson());
-        
-        
+
+        // ----------------------- Ranking -----------------------
         // test add ranking score
         // var rank = await NakamaConnection.AddRankingScore(100);
         // Debug.Log("rank: " + rank.ToJson());
@@ -53,15 +48,33 @@ public class Player : MonoBehaviour
         // {
         //     Debug.Log("record: " + record.ToJson());
         // }
-        
-        var myLeaderboardRecords = await NakamaConnection.GetMyRank();
-        Debug.Log("My Ranking Records: " + myLeaderboardRecords.Records.Count());
-        foreach (var record in myLeaderboardRecords.Records)
-        {
-            Debug.Log("record: " + record.ToJson());
-        }
-        
-        
-    }
 
+        // var myLeaderboardRecords = await NakamaConnection.GetMyRank();
+        // Debug.Log("My Ranking Records: " + myLeaderboardRecords.Records.Count());
+        // foreach (var record in myLeaderboardRecords.Records)
+        // {
+        //     Debug.Log("record: " + record.ToJson());
+
+
+        // ----------------------- Notice -----------------------
+        // var notices = await NakamaConnection.GetNotices();
+        // Debug.Log("notices: " + notices.ToJson());
+
+
+        // ----------------------- Mailbox -----------------------
+        // load all mailboxs
+        var mailBoxes = await NakamaConnection.LoadMailbox();
+        if (mailBoxes != null)
+        {
+            Debug.Log("received mailboxes: " + mailBoxes.Count);
+            foreach (var notification in mailBoxes)
+            {
+                // Process notification data (subject, content, etc.)
+                Debug.Log($"Mailbox: {notification.ToJson()}");
+            }
+        }
+
+        // receive notification immediately when server push
+        NakamaConnection.ReceiveMailbox();
+    }
 }
