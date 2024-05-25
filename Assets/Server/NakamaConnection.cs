@@ -231,6 +231,7 @@ namespace Server
             foreach (var item in result.Notifications)
             {
                 var mailBox = item.Content.FromJson<MailBox>();
+                mailBox.ID = item.Id;
                 mailBoxes.Add(mailBox);
             }
 
@@ -257,6 +258,7 @@ namespace Server
                 foreach (var item in result.Notifications)
                 {
                     var mailBox = item.Content.FromJson<MailBox>();
+                    mailBox.ID = item.Id;
                     mailBoxes.Add(mailBox);
                 }
 

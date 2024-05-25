@@ -45,6 +45,7 @@ public class NoticeBody
 
 public class MailBox
 {
+    public string ID { get; set; }
     public List<MailBoxBody> bodies { get; set; }
     public List<MailBoxItem> items { get; set; }
 }

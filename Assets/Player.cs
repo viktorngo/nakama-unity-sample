@@ -76,5 +76,12 @@ public class Player : MonoBehaviour
 
         // receive notification immediately when server push
         NakamaConnection.ReceiveMailbox();
+        
+        // Delete mailbox
+        await NakamaConnection.DeleteMailboxs(new[] { "f56e6722-7de0-4e7b-b1d5-ba9e447bddb5" });
+        
+        Debug.Log("after delete 1 mailbox");
+        mailBoxes = await NakamaConnection.LoadMailbox();
+        Debug.Log($"length: {mailBoxes.Count} mailboxes: {mailBoxes.ToJson()}");
     }
 }
