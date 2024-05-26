@@ -78,7 +78,7 @@ public class Player : MonoBehaviour
         NakamaConnection.ReceiveNotification();
         
         // Delete mailbox
-        // await NakamaConnection.DeleteMailboxs(new[] { "f56e6722-7de0-4e7b-b1d5-ba9e447bddb5" });
+        // await NakamaConnection.DeleteMailbox(new[] { "f56e6722-7de0-4e7b-b1d5-ba9e447bddb5" });
         //
         // Debug.Log("after delete 1 mailbox");
         // mailBoxes = await NakamaConnection.LoadMailbox();

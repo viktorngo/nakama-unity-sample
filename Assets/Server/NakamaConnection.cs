@@ -275,6 +275,11 @@ namespace Server
             return null;
         }
 
+        public static async Task DeleteMailbox(string[] mailboxIds)
+        {
+            await DeleteNotifications(mailboxIds);
+        }
+
         // when user is online, use this callback to receive notification when server push
         public static void ReceiveNotification()
         {
@@ -296,6 +301,7 @@ namespace Server
                         {
                             Debug.Log(
                                 $"Server is maintenance because {maintenanceStatus.reason}, gracefully disconnect the game");
+                            await DeleteNotifications(new[] { notification.Id });
                             await Disconnect();
                             Debug.Log("Disconnected from server");
                         }
@@ -306,7 +312,7 @@ namespace Server
         }
 
         // pass a list of notification ids to delete
-        public static async Task DeleteMailboxs(string[] notificationIds)
+        public static async Task DeleteNotifications(string[] notificationIds)
         {
             if (!IsAlive())
             {
