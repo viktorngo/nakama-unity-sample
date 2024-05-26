@@ -63,3 +63,11 @@ public class MailBoxItem
     public string id { get; set; }
     public int quantity { get; set; }
 }
+
+public class MaintenanceStatus
+{
+    public bool is_maintenance { get; set; }
+    public string reason { get; set; }
+    public string from_time { get; set; }
+    public string end_time { get; set; }
+}

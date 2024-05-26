@@ -80,6 +80,12 @@ namespace Server
             await Client.SessionLogoutAsync(CurrentSession);
         }
 
+        public static async Task Disconnect()
+        {
+            await CurrentSocket.CloseAsync();
+            await Client.SessionLogoutAsync(CurrentSession);
+        }
+
         public static bool IsAlive()
         {
             return CurrentSocket.IsConnected;
@@ -270,15 +276,32 @@ namespace Server
         }
 
         // when user is online, use this callback to receive notification when server push
-        public static void ReceiveMailbox()
+        public static void ReceiveNotification()
         {
-            CurrentSocket.ReceivedNotification += notification =>
+            CurrentSocket.ReceivedNotification += async notification =>
             {
-                var mailBox = notification.Content.FromJson<MailBox>();
+                switch (notification.Code)
+                {
+                    case 24:
+                        var mailBox = notification.Content.FromJson<MailBox>();
 
+                        Debug.Log("Received: " + notification);
+                        Debug.Log("Mailbox content: " + mailBox);
+                        break;
+                    case 991:
+                        Debug.Log("notification: " + notification.Content);
+                        var maintenanceStatus = notification.Content.FromJson<MaintenanceStatus>();
+                        Debug.Log("Maintenance status: " + maintenanceStatus.ToJson());
+                        if (maintenanceStatus.is_maintenance)
+                        {
+                            Debug.Log(
+                                $"Server is maintenance because {maintenanceStatus.reason}, gracefully disconnect the game");
+                            await Disconnect();
+                            Debug.Log("Disconnected from server");
+                        }
 
-                Debug.Log("Received: " + notification);
-                Debug.Log("Mailbox content: " + mailBox);
+                        break;
+                }
             };
         }
 

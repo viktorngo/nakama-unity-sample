@@ -63,25 +63,25 @@ public class Player : MonoBehaviour
 
         // ----------------------- Mailbox -----------------------
         // load all mailboxs
-        var mailBoxes = await NakamaConnection.LoadMailbox();
-        if (mailBoxes != null)
-        {
-            Debug.Log("received mailboxes: " + mailBoxes.Count);
-            foreach (var notification in mailBoxes)
-            {
-                // Process notification data (subject, content, etc.)
-                Debug.Log($"Mailbox: {notification.ToJson()}");
-            }
-        }
+        // var mailBoxes = await NakamaConnection.LoadMailbox();
+        // if (mailBoxes != null)
+        // {
+        //     Debug.Log("received mailboxes: " + mailBoxes.Count);
+        //     foreach (var notification in mailBoxes)
+        //     {
+        //         // Process notification data (subject, content, etc.)
+        //         Debug.Log($"Mailbox: {notification.ToJson()}");
+        //     }
+        // }
 
         // receive notification immediately when server push
-        NakamaConnection.ReceiveMailbox();
+        NakamaConnection.ReceiveNotification();
         
         // Delete mailbox
-        await NakamaConnection.DeleteMailboxs(new[] { "f56e6722-7de0-4e7b-b1d5-ba9e447bddb5" });
-        
-        Debug.Log("after delete 1 mailbox");
-        mailBoxes = await NakamaConnection.LoadMailbox();
-        Debug.Log($"length: {mailBoxes.Count} mailboxes: {mailBoxes.ToJson()}");
+        // await NakamaConnection.DeleteMailboxs(new[] { "f56e6722-7de0-4e7b-b1d5-ba9e447bddb5" });
+        //
+        // Debug.Log("after delete 1 mailbox");
+        // mailBoxes = await NakamaConnection.LoadMailbox();
+        // Debug.Log($"length: {mailBoxes.Count} mailboxes: {mailBoxes.ToJson()}");
     }
 }
